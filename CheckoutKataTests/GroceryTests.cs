@@ -52,5 +52,14 @@ namespace CheckoutKata.Tests
             grocery.removeItem("beef", .10m);
             Assert.AreEqual(9.6m, grocery.getTotal());
         }
+        [TestMethod()]
+        public void SupportMarkdownTest()
+        {
+            Grocery grocery = new Grocery();
+            grocery.addMarkDown("beef", .15m);
+            grocery.addItemLbs("beef", 1m);
+            Assert.AreEqual(3.85m, grocery.getTotal());
+        }
+
     }
 }
