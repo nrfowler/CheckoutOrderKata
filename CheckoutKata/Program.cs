@@ -18,6 +18,12 @@ namespace CheckoutKata
         {
             total += cost;
         }
+       
+        public void removeItem(string name, decimal cost)
+        {
+            total -= cost;
+        }
+        
         static void Main(string[] args)
         {
         }
