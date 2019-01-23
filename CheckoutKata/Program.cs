@@ -4,28 +4,41 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace CheckoutKata
 {
     public class Grocery
     {
         private decimal total = 0;
 
+
+        public Dictionary<string, decimal> costList;
+
+        public Grocery()
+        {
+            costList = new Dictionary<string, decimal>();
+            costList.Add("soup", 1.25m);
+            costList.Add("cheese", 2.75m);
+        }
+
         public decimal getTotal()
         {
             return total;
         }
-        public void addItem(string name, decimal cost)
+        public decimal addItem(string name)
         {
-            total += cost;
+            total += costList[name];
+            return costList[name];
         }
        
-        public void removeItem(string name, decimal cost)
+        public void removeItem(string name)
         {
-            total -= cost;
+            total -= costList[name];
         }
         
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
+          
         }
     }
 }
