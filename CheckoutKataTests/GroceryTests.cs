@@ -37,5 +37,20 @@ namespace CheckoutKata.Tests
             grocery.removeItem("cheese");
             Assert.AreEqual(0m, grocery.getTotal());
         }
+        [TestMethod()]
+        public void AddItemLbsTest()
+        {
+            Grocery grocery = new Grocery();
+            grocery.addItemLbs("beef", 2.5m);
+            Assert.AreEqual(10m, grocery.getTotal());
+        }
+        [TestMethod()]
+        public void RemoveItemLbsTest()
+        {
+            Grocery grocery = new Grocery();
+            grocery.addItemLbs("beef", 2.5m);
+            grocery.removeItem("beef", .10m);
+            Assert.AreEqual(9.6m, grocery.getTotal());
+        }
     }
 }

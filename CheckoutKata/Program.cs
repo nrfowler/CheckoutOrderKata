@@ -19,23 +19,28 @@ namespace CheckoutKata
             costList = new Dictionary<string, decimal>();
             costList.Add("soup", 1.25m);
             costList.Add("cheese", 2.75m);
+            costList.Add("beef", 4m);
         }
 
         public decimal getTotal()
         {
             return total;
         }
-        public decimal addItem(string name)
+        public void addItem(string name)
         {
             total += costList[name];
-            return costList[name];
+        }
+
+        public void addItemLbs(string name, decimal weight)
+        {
+            total += costList[name]*weight;
         }
        
-        public void removeItem(string name)
+        public void removeItem(string name, decimal weight=1)
         {
-            total -= costList[name];
+            total -= costList[name]*weight;
         }
-        
+
         public static void Main(string[] args)
         {
           
