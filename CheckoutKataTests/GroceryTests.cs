@@ -17,5 +17,15 @@ namespace CheckoutKata.Tests
             Grocery grocery = new Grocery();
             Assert.AreEqual(0, grocery.getTotal());
         }
+        [TestMethod()]
+        public void AddItemTest()
+        {
+            Grocery grocery = new Grocery();
+            grocery.addItem("soup", 1.25m);
+            Assert.AreEqual(1.25m, grocery.getTotal());
+            grocery.addItem("cheese",2.75m);
+            Assert.AreEqual(4m, grocery.getTotal());
+
+        }
     }
 }

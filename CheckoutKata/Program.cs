@@ -8,13 +8,16 @@ namespace CheckoutKata
 {
     public class Grocery
     {
-        private float total =0;
-         
-        public float getTotal()
+        private decimal total = 0;
+
+        public decimal getTotal()
         {
             return total;
         }
-
+        public void addItem(string name, decimal cost)
+        {
+            total += cost;
+        }
         static void Main(string[] args)
         {
         }
