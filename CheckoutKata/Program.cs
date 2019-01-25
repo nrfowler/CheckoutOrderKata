@@ -8,10 +8,6 @@ using System.Threading.Tasks;
 
 namespace CheckoutKata
 {
-    public class SpecialsForItem
-    {
-        public ArrayList specials=new ArrayList();
-    }
     public class Grocery
     {
         private decimal total = 0;
@@ -20,7 +16,7 @@ namespace CheckoutKata
         public Dictionary<string, item> costList;
         public Dictionary<string, decimal> MarkDownList;
         public Dictionary<string, decimal> Receipt = new Dictionary<string, decimal>();
-        public Dictionary<string, SpecialsForItem> Specials= new Dictionary<string, SpecialsForItem>();
+        public Dictionary<string, SpecialBuyNgetMatXPctOff> Specials= new Dictionary<string, SpecialBuyNgetMatXPctOff>();
 
         public Grocery()
         {
@@ -29,9 +25,11 @@ namespace CheckoutKata
             costList.Add("soup", new item("soup", 1.25m,false));
             costList.Add("cheese",new item("cheese", 2.75m, false));
             costList.Add("beef", new item("beef", 4m, true));
+            costList.Add("milk", new item("milk", 1m, false));
+
         }
 
-        public decimal getTotal()
+        public decimal GetTotal()
         {
             decimal markdown;
             total = 0;
@@ -39,41 +37,41 @@ namespace CheckoutKata
             {
                 if (Specials.ContainsKey(LineItem.Key))
                 {
-                    ArrayList SpecialsList = Specials[LineItem.Key].specials;
-                    decimal val = 0;
                     //assume only 1 kind of special (BuyNgetM...) exists for now
-                    foreach (SpecialBuyNgetMatXPctOff special in SpecialsList)
-                    {
-                        decimal itemsLeft = LineItem.Value;
+
+                    SpecialBuyNgetMatXPctOff special = Specials[LineItem.Key];
+                    decimal val = 0;
+                    
+                    decimal itemsLeft = LineItem.Value;
                             
-                        while (itemsLeft > 0)
+                    while (itemsLeft > 0)
+                    {
+                        if (itemsLeft > special.M)
                         {
-                            if (itemsLeft > special.M)
+                            //discount the N items. The M items and the remainder (total-M-N) are regular price.
+                            val += special.M;
+                            itemsLeft -= special.M;
+                            if(itemsLeft < special.N)
                             {
-                                //discount the N items. The M items and the remainder (total-M-N) are regular price.
-                                val += special.M;
-                                itemsLeft -= special.M;
-                                if(itemsLeft < special.N)
-                                {
-                                    val+=itemsLeft * (1 - special.pct);
-                                    itemsLeft = 0;
-                                }
-                                else
-                                {
-                                    val += special.N * (1 - special.pct);
-                                    itemsLeft -= special.N;
-                                }
-                                    
+                                val+=itemsLeft * (1 - special.pct);
+                                itemsLeft = 0;
                             }
                             else
                             {
-                                val += itemsLeft;
-                                itemsLeft = 0;
+                                val += special.N * (1 - special.pct);
+                                itemsLeft -= special.N;
                             }
+                                    
                         }
+                        else
+                        {
+                            val += itemsLeft;
+                            itemsLeft = 0;
+                        }
+                    }
                         
                        
-                    }
+                    
                     total += (costList[LineItem.Key].cost - (MarkDownList.TryGetValue(LineItem.Key, out markdown) ? markdown : 0)) * val;
 
                 }
@@ -111,7 +109,7 @@ namespace CheckoutKata
             grocery.addItem("cheese");
             grocery.addItem("cheese");
             grocery.addItem("cheese");
-            decimal test = grocery.getTotal();
+            decimal test = grocery.GetTotal();
         }
 
         public void addMarkDown(string name, decimal markdown)
@@ -145,12 +143,13 @@ namespace CheckoutKata
                 this.isPerLb = isPerLb;
             }
         }
-        public void AddSpecialBuyNgetMatXPctOff(string v1, int v2, int v3, decimal v4)
+        public void AddSpecialBuyNgetMatXPctOff(string name, int M, int N, decimal pct)
         {
-             SpecialBuyNgetMatXPctOff special = new SpecialBuyNgetMatXPctOff( v1, v2, v3, v4 );
-            SpecialsForItem newItem = new SpecialsForItem();
-            newItem.specials.Add(special);
-            Specials.Add(v1, newItem);
+             SpecialBuyNgetMatXPctOff special = new SpecialBuyNgetMatXPctOff( name, M, N, pct);
+            if (Specials.ContainsKey(name))
+                Specials[name] = special;
+            else
+                Specials.Add(name, special);
         }
     }
 }
