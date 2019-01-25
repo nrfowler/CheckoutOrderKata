@@ -1,33 +1,24 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace CheckoutKata
 {
-    
+
     public class Grocery
     {
         private decimal total = 0;
-
-
-        public Dictionary<string, item> costList;
-        public Dictionary<string, decimal> MarkDownList;
+        public Dictionary<string, item> costList = new Dictionary<string, item>();
+        public Dictionary<string, decimal> MarkDownList = new Dictionary<string, decimal>();
         public Dictionary<string, decimal> Receipt = new Dictionary<string, decimal>();
         public Dictionary<string, Special> Specials = new Dictionary<string, Special>();
 
         public Grocery()
         {
-            costList = new Dictionary<string, item>();
-            MarkDownList = new Dictionary<string, decimal>();
             costList.Add("soup", new item("soup", 1.25m, false));
             costList.Add("cheese", new item("cheese", 2.75m, false));
             costList.Add("beef", new item("beef", 4m, true));
             costList.Add("milk", new item("milk", 1m, false));
-
         }
 
         public decimal GetTotal()
@@ -60,7 +51,6 @@ namespace CheckoutKata
                                     val += special.n * (1 - special.pct);
                                     itemsLeft -= special.n;
                                 }
-
                             }
                             else
                             {
@@ -69,7 +59,6 @@ namespace CheckoutKata
                             }
                         }
                         total += (costList[LineItem.Key].cost - (MarkDownList.TryGetValue(LineItem.Key, out markdown) ? markdown : 0)) * val;
-
                     }
                     else if (GenericSpecial.GetType() == typeof(SpecialNForX))
                     {
@@ -80,10 +69,8 @@ namespace CheckoutKata
                             total += (special.cost - (MarkDownList.TryGetValue(LineItem.Key, out markdown) ? markdown : 0) )* special.n;
                         }
                         total += (costList[LineItem.Key].cost - (MarkDownList.TryGetValue(LineItem.Key, out markdown) ? markdown : 0)) * itemsLeft;
-
                     }
-                }
-                
+                }               
                 else
                     total += (costList[LineItem.Key].cost - (MarkDownList.TryGetValue(LineItem.Key, out markdown) ? markdown : 0)) * LineItem.Value;
             }
@@ -91,13 +78,11 @@ namespace CheckoutKata
         }
         public void addItem(string name, int amt=1)
         {
-
             if (Receipt.ContainsKey(name))
                 Receipt[name] += amt;
             else
                 Receipt.Add(name, amt);
         }
-
         public void addItemLbs(string name, decimal weight)
         {
             if (Receipt.ContainsKey(name))
@@ -105,23 +90,17 @@ namespace CheckoutKata
             else
                 Receipt.Add(name, weight);
         }
-
         public void removeItem(string name, decimal weight = 1)
         {
             Receipt[name] -= weight;
         }
-
         public static void Main(string[] args)
         {
-
         }
-
         public void addMarkDown(string name, decimal markdown)
         {
             MarkDownList.Add(name, markdown);
         }
-        
-
         public void AddSpecialNForX(string name, int N, decimal X, int limit = Int16.MaxValue)
         {
             SpecialNForX special = new SpecialNForX(name, N, X);
@@ -131,7 +110,6 @@ namespace CheckoutKata
             else
                 Specials.Add(name, special);
         }
-
         public struct item
         {
             public string name;
@@ -157,7 +135,6 @@ namespace CheckoutKata
     public class Special
     {
         public int limit;
-
     }
     public class SpecialBuyNgetMatXPctOff : Special
     {
@@ -165,7 +142,6 @@ namespace CheckoutKata
         public int m;
         public int n;
         public decimal pct;
-
         public SpecialBuyNgetMatXPctOff(string name, int m, int n, decimal pct)
         {
             this.name = name;

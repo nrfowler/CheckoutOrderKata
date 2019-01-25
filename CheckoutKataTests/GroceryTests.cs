@@ -1,10 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CheckoutKata;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CheckoutKata.Tests
 {
@@ -93,7 +87,6 @@ namespace CheckoutKata.Tests
             grocery.addItem("cheese");
             //Should add one discounted cheese
             Assert.AreEqual(23.5125m, grocery.GetTotal());
-
         }
         //Enforce only one special per item. When you add a new special, remove the previous special
         [TestMethod()]
@@ -123,16 +116,13 @@ namespace CheckoutKata.Tests
             Assert.AreEqual(1.5m, grocery.GetTotal());
             grocery.addItem("milk");
             Assert.AreEqual(2.5m, grocery.GetTotal());
-
         }
         [TestMethod()]
         public void LimitSpecialsTest()
         {
             Grocery grocery = new Grocery();
             grocery.AddSpecialBuyNgetMatXPctOff("cheese", 2, 1, .15m,6);
-            
             grocery.addItem("cheese",6);
-
             //Correctly discounted
             Assert.AreEqual(15.675m, grocery.GetTotal());
             grocery.addItem("cheese",3);
@@ -144,14 +134,22 @@ namespace CheckoutKata.Tests
         {
             Grocery grocery = new Grocery();
             grocery.AddSpecialNForX("milk", 3, .5m, 3);
-
             grocery.addItem("milk", 3);
-
             //Correctly discounted
             Assert.AreEqual(1.5m, grocery.GetTotal());
             grocery.addItem("milk", 3);
             //Should add milk at normal price
             Assert.AreEqual(4.5m, grocery.GetTotal());
+        }
+        //Support removing a scanned item, keeping the total correct after possibly invalidating a special.
+        [TestMethod()]
+        public void RemoveItemInvalidateSpecialTest()
+        {
+            Grocery grocery = new Grocery();
+            grocery.AddSpecialNForX("milk", 3, .5m, 3);
+            grocery.addItem("milk", 3);
+            grocery.removeItem("milk");
+            Assert.AreEqual(2m, grocery.GetTotal());
         }
     }
 }
