@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace CheckoutKata
 {
+    
     public class Grocery
     {
         private decimal total = 0;
@@ -16,14 +17,14 @@ namespace CheckoutKata
         public Dictionary<string, item> costList;
         public Dictionary<string, decimal> MarkDownList;
         public Dictionary<string, decimal> Receipt = new Dictionary<string, decimal>();
-        public Dictionary<string, SpecialBuyNgetMatXPctOff> Specials= new Dictionary<string, SpecialBuyNgetMatXPctOff>();
+        public Dictionary<string, Special> Specials = new Dictionary<string, Special>();
 
         public Grocery()
         {
             costList = new Dictionary<string, item>();
             MarkDownList = new Dictionary<string, decimal>();
-            costList.Add("soup", new item("soup", 1.25m,false));
-            costList.Add("cheese",new item("cheese", 2.75m, false));
+            costList.Add("soup", new item("soup", 1.25m, false));
+            costList.Add("cheese", new item("cheese", 2.75m, false));
             costList.Add("beef", new item("beef", 4m, true));
             costList.Add("milk", new item("milk", 1m, false));
 
@@ -33,48 +34,56 @@ namespace CheckoutKata
         {
             decimal markdown;
             total = 0;
-            foreach (KeyValuePair<string,decimal> LineItem in Receipt)
+            foreach (KeyValuePair<string, decimal> LineItem in Receipt)
             {
                 if (Specials.ContainsKey(LineItem.Key))
                 {
-                    //assume only 1 kind of special (BuyNgetM...) exists for now
-
-                    SpecialBuyNgetMatXPctOff special = Specials[LineItem.Key];
                     decimal val = 0;
-                    
                     decimal itemsLeft = LineItem.Value;
-                            
-                    while (itemsLeft > 0)
+                    Special GenericSpecial = Specials[LineItem.Key];
+                    if (GenericSpecial.GetType() == typeof(SpecialBuyNgetMatXPctOff))
                     {
-                        if (itemsLeft > special.M)
+                        SpecialBuyNgetMatXPctOff special = (SpecialBuyNgetMatXPctOff)GenericSpecial;
+                        while (itemsLeft > 0)
                         {
-                            //discount the N items. The M items and the remainder (total-M-N) are regular price.
-                            val += special.M;
-                            itemsLeft -= special.M;
-                            if(itemsLeft < special.N)
+                            if (itemsLeft > special.m)
                             {
-                                val+=itemsLeft * (1 - special.pct);
-                                itemsLeft = 0;
+                                val += special.m;
+                                itemsLeft -= special.m;
+                                if (itemsLeft < special.n)
+                                {
+                                    val += itemsLeft * (1 - special.pct);
+                                    itemsLeft = 0;
+                                }
+                                else
+                                {
+                                    val += special.n * (1 - special.pct);
+                                    itemsLeft -= special.n;
+                                }
+
                             }
                             else
                             {
-                                val += special.N * (1 - special.pct);
-                                itemsLeft -= special.N;
+                                val += itemsLeft;
+                                itemsLeft = 0;
                             }
-                                    
                         }
-                        else
-                        {
-                            val += itemsLeft;
-                            itemsLeft = 0;
-                        }
-                    }
-                        
-                       
-                    
-                    total += (costList[LineItem.Key].cost - (MarkDownList.TryGetValue(LineItem.Key, out markdown) ? markdown : 0)) * val;
+                        total += (costList[LineItem.Key].cost - (MarkDownList.TryGetValue(LineItem.Key, out markdown) ? markdown : 0)) * val;
 
+                    }
+                    else if (GenericSpecial.GetType() == typeof(SpecialNForX))
+                    {
+                        SpecialNForX special = (SpecialNForX)GenericSpecial;
+                        while (itemsLeft >= special.n)
+                        {
+                            itemsLeft -= special.n;
+                            total += (special.cost - (MarkDownList.TryGetValue(LineItem.Key, out markdown) ? markdown : 0) )* special.n;
+                        }
+                        total += (costList[LineItem.Key].cost - (MarkDownList.TryGetValue(LineItem.Key, out markdown) ? markdown : 0)) * itemsLeft;
+
+                    }
                 }
+                
                 else
                     total += (costList[LineItem.Key].cost - (MarkDownList.TryGetValue(LineItem.Key, out markdown) ? markdown : 0)) * LineItem.Value;
             }
@@ -82,7 +91,7 @@ namespace CheckoutKata
         }
         public void addItem(string name)
         {
-            
+
             if (Receipt.ContainsKey(name))
                 Receipt[name] += 1;
             else
@@ -96,8 +105,8 @@ namespace CheckoutKata
             else
                 Receipt.Add(name, weight);
         }
-       
-        public void removeItem(string name, decimal weight=1)
+
+        public void removeItem(string name, decimal weight = 1)
         {
             Receipt[name] -= weight;
         }
@@ -116,21 +125,17 @@ namespace CheckoutKata
         {
             MarkDownList.Add(name, markdown);
         }
-        public struct SpecialBuyNgetMatXPctOff
-        {
-            public int N;
-            public int M;
-            public string name;
-            public decimal pct;
-            public SpecialBuyNgetMatXPctOff(string name, int M, int N,  decimal pct)
-            {
-                this.N = N;
-                this.M = M;
-                this.name = name;
-                this.pct = pct;
-            }
+        
 
+        public void AddSpecialNForX(string name, int N, decimal X)
+        {
+            SpecialNForX special = new SpecialNForX(name, N, X);
+            if (Specials.ContainsKey(name))
+                Specials[name] = special;
+            else
+                Specials.Add(name, special);
         }
+
         public struct item
         {
             public string name;
@@ -145,11 +150,42 @@ namespace CheckoutKata
         }
         public void AddSpecialBuyNgetMatXPctOff(string name, int M, int N, decimal pct)
         {
-             SpecialBuyNgetMatXPctOff special = new SpecialBuyNgetMatXPctOff( name, M, N, pct);
+            SpecialBuyNgetMatXPctOff special = new SpecialBuyNgetMatXPctOff(name, M, N, pct);
             if (Specials.ContainsKey(name))
                 Specials[name] = special;
             else
                 Specials.Add(name, special);
+        }
+    }
+    public class Special
+    {
+    }
+    public class SpecialBuyNgetMatXPctOff : Special
+    {
+        public string name;
+        public int m;
+        public int n;
+        public decimal pct;
+
+        public SpecialBuyNgetMatXPctOff(string name, int m, int n, decimal pct)
+        {
+            this.name = name;
+            this.m = m;
+            this.n = n;
+            this.pct = pct;
+        }
+    }
+    public class SpecialNForX : Special
+    {
+        private string name;
+        public int n;
+        public decimal cost;
+
+        public SpecialNForX(string name, int n, decimal cost)
+        {
+            this.name = name;
+            this.n = n;
+            this.cost = cost;
         }
     }
 }

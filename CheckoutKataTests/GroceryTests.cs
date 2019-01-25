@@ -111,5 +111,19 @@ namespace CheckoutKata.Tests
             grocery.addItem("milk");
             Assert.AreEqual(1.5m, grocery.GetTotal());
         }
+        //Support a special in the form of "N for $X." For example, "3 for $.50"
+        [TestMethod()]
+        public void NforXTest()
+        {
+            Grocery grocery = new Grocery();
+            grocery.AddSpecialNForX("milk", 3, .5m);
+            grocery.addItem("milk");
+            grocery.addItem("milk");
+            grocery.addItem("milk");
+            Assert.AreEqual(1.5m, grocery.GetTotal());
+            grocery.addItem("milk");
+            Assert.AreEqual(2.5m, grocery.GetTotal());
+
+        }
     }
 }
