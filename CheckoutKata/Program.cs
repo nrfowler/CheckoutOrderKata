@@ -46,7 +46,7 @@ namespace CheckoutKata
                         SpecialBuyNgetMatXPctOff special = (SpecialBuyNgetMatXPctOff)GenericSpecial;
                         while (itemsLeft > 0)
                         {
-                            if (itemsLeft > special.m)
+                            if ((itemsLeft > special.m) && (LineItem.Value-itemsLeft<special.limit))
                             {
                                 val += special.m;
                                 itemsLeft -= special.m;
@@ -74,7 +74,7 @@ namespace CheckoutKata
                     else if (GenericSpecial.GetType() == typeof(SpecialNForX))
                     {
                         SpecialNForX special = (SpecialNForX)GenericSpecial;
-                        while (itemsLeft >= special.n)
+                        while ((itemsLeft >= special.n) && (LineItem.Value - itemsLeft < special.limit))
                         {
                             itemsLeft -= special.n;
                             total += (special.cost - (MarkDownList.TryGetValue(LineItem.Key, out markdown) ? markdown : 0) )* special.n;
@@ -89,13 +89,13 @@ namespace CheckoutKata
             }
             return total;
         }
-        public void addItem(string name)
+        public void addItem(string name, int amt=1)
         {
 
             if (Receipt.ContainsKey(name))
-                Receipt[name] += 1;
+                Receipt[name] += amt;
             else
-                Receipt.Add(name, 1);
+                Receipt.Add(name, amt);
         }
 
         public void addItemLbs(string name, decimal weight)
@@ -113,12 +113,7 @@ namespace CheckoutKata
 
         public static void Main(string[] args)
         {
-            Grocery grocery = new Grocery();
-            grocery.AddSpecialBuyNgetMatXPctOff("cheese", 2, 1, .15m);
-            grocery.addItem("cheese");
-            grocery.addItem("cheese");
-            grocery.addItem("cheese");
-            decimal test = grocery.GetTotal();
+
         }
 
         public void addMarkDown(string name, decimal markdown)
@@ -127,9 +122,10 @@ namespace CheckoutKata
         }
         
 
-        public void AddSpecialNForX(string name, int N, decimal X)
+        public void AddSpecialNForX(string name, int N, decimal X, int limit = Int16.MaxValue)
         {
             SpecialNForX special = new SpecialNForX(name, N, X);
+            special.limit = limit;
             if (Specials.ContainsKey(name))
                 Specials[name] = special;
             else
@@ -148,9 +144,10 @@ namespace CheckoutKata
                 this.isPerLb = isPerLb;
             }
         }
-        public void AddSpecialBuyNgetMatXPctOff(string name, int M, int N, decimal pct)
+        public void AddSpecialBuyNgetMatXPctOff(string name, int M, int N, decimal pct, int limit=Int16.MaxValue)
         {
             SpecialBuyNgetMatXPctOff special = new SpecialBuyNgetMatXPctOff(name, M, N, pct);
+            special.limit = limit;
             if (Specials.ContainsKey(name))
                 Specials[name] = special;
             else
@@ -159,6 +156,8 @@ namespace CheckoutKata
     }
     public class Special
     {
+        public int limit;
+
     }
     public class SpecialBuyNgetMatXPctOff : Special
     {

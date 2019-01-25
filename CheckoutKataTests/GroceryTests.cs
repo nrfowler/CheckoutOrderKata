@@ -125,5 +125,33 @@ namespace CheckoutKata.Tests
             Assert.AreEqual(2.5m, grocery.GetTotal());
 
         }
+        [TestMethod()]
+        public void LimitSpecialsTest()
+        {
+            Grocery grocery = new Grocery();
+            grocery.AddSpecialBuyNgetMatXPctOff("cheese", 2, 1, .15m,6);
+            
+            grocery.addItem("cheese",6);
+
+            //Correctly discounted
+            Assert.AreEqual(15.675m, grocery.GetTotal());
+            grocery.addItem("cheese",3);
+            //Should add a cheese at normal price
+            Assert.AreEqual(23.925m, grocery.GetTotal());
+        }
+        [TestMethod()]
+        public void LimitSpecialsNForXTest()
+        {
+            Grocery grocery = new Grocery();
+            grocery.AddSpecialNForX("milk", 3, .5m, 3);
+
+            grocery.addItem("milk", 3);
+
+            //Correctly discounted
+            Assert.AreEqual(1.5m, grocery.GetTotal());
+            grocery.addItem("milk", 3);
+            //Should add milk at normal price
+            Assert.AreEqual(4.5m, grocery.GetTotal());
+        }
     }
 }
