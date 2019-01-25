@@ -60,6 +60,16 @@ namespace CheckoutKata.Tests
             grocery.addItemLbs("beef", 1m);
             Assert.AreEqual(3.85m, grocery.getTotal());
         }
-
-    }
+        //Buy N items get M at %X off.
+        [TestMethod()]
+        public void BuyNgetMatXPctOffTest()
+        {
+            Grocery grocery = new Grocery();
+            grocery.AddSpecialBuyNgetMatXPctOff("cheese",2 ,1, .15m);
+            grocery.addItem("cheese");
+            grocery.addItem("cheese");
+            grocery.addItem("cheese");
+            Assert.AreEqual(7.8375m, grocery.getTotal());
+        }
+        }
 }
