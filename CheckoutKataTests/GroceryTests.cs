@@ -60,7 +60,7 @@ namespace CheckoutKata.Tests
             grocery.addItemLbs("beef", 1m);
             Assert.AreEqual(3.85m, grocery.getTotal());
         }
-        //Buy N items get M at %X off.
+        //Buy M items get N at %X off.
         [TestMethod()]
         public void BuyNgetMatXPctOffTest()
         {
@@ -71,5 +71,29 @@ namespace CheckoutKata.Tests
             grocery.addItem("cheese");
             Assert.AreEqual(7.8375m, grocery.getTotal());
         }
+        //Buy M items get N at %X off-with multiples of M and N.
+        [TestMethod()]
+        public void BuyNgetMatXPctOffTestWithMultiples()
+        {
+            Grocery grocery = new Grocery();
+            grocery.AddSpecialBuyNgetMatXPctOff("cheese", 2, 1, .15m);
+            grocery.addItem("cheese");
+            grocery.addItem("cheese");
+            grocery.addItem("cheese");
+            grocery.addItem("cheese");
+            grocery.addItem("cheese");
+            grocery.addItem("cheese");
+            Assert.AreEqual(15.675m, grocery.getTotal());
+            grocery.addItem("cheese");
+            //Should add a cheese at normal price
+            Assert.AreEqual(18.425m, grocery.getTotal());
+            grocery.addItem("cheese");
+            //Should add a cheese at normal price
+            Assert.AreEqual(21.175m, grocery.getTotal());
+            grocery.addItem("cheese");
+            //Should add one discounted cheese
+            Assert.AreEqual(23.5125m, grocery.getTotal());
+
         }
+    }
 }

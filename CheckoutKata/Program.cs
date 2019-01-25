@@ -44,11 +44,35 @@ namespace CheckoutKata
                     //assume only 1 kind of special (BuyNgetM...) exists for now
                     foreach (SpecialBuyNgetMatXPctOff special in SpecialsList)
                     {
-                        //hacky method: reduce quantity of item, assume not greater than 2M
-                        if (LineItem.Value > special.M)
+                        decimal itemsLeft = LineItem.Value;
+                            
+                        while (itemsLeft > 0)
                         {
-                            val = special.M + special.N * (1 - special.pct);
+                            if (itemsLeft > special.M)
+                            {
+                                //discount the N items. The M items and the remainder (total-M-N) are regular price.
+                                val += special.M;
+                                itemsLeft -= special.M;
+                                if(itemsLeft < special.N)
+                                {
+                                    val+=itemsLeft * (1 - special.pct);
+                                    itemsLeft = 0;
+                                }
+                                else
+                                {
+                                    val += special.N * (1 - special.pct);
+                                    itemsLeft -= special.N;
+                                }
+                                    
+                            }
+                            else
+                            {
+                                val += itemsLeft;
+                                itemsLeft = 0;
+                            }
                         }
+                        
+                       
                     }
                     total += (costList[LineItem.Key].cost - (MarkDownList.TryGetValue(LineItem.Key, out markdown) ? markdown : 0)) * val;
 
